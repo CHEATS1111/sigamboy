@@ -20,6 +20,27 @@ export default function AdminPage() {
     }
   }, [])
 
+  useEffect(() => {
+    // Автоматически обновляем читы каждую секунду для синхронизации между админами
+    if (isAuthenticated) {
+      const interval = setInterval(() => {
+        const savedCheats = localStorage.getItem('cheats_data')
+        if (savedCheats) {
+          try {
+            const parsedCheats = JSON.parse(savedCheats)
+            // Обновляем контекст через refreshCheats если он есть
+            if (window.dispatchEvent) {
+              window.dispatchEvent(new Event('cheats-updated'))
+            }
+          } catch (error) {
+            console.error('Error parsing saved cheats:', error)
+          }
+        }
+      }, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [isAuthenticated])
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (password === '33336020') {
@@ -139,6 +160,15 @@ export default function AdminPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">{cheat.title}</h3>
               <p className="text-gray-400 text-sm mb-4">{cheat.description}</p>
+              
+              {/* Индикатор статуса */}
+              <div className="mb-3 flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${cheat.downloadUrl ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className={`text-sm ${cheat.downloadUrl ? 'text-green-400' : 'text-red-400'}`}>
+                  {cheat.downloadUrl ? 'Доступен для скачивания' : 'Недоступен'}
+                </span>
+              </div>
+              
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEditCheat(cheat)}
@@ -148,17 +178,32 @@ export default function AdminPage() {
                 </button>
                 <button
                   onClick={() => {
-                    const updatedCheat = { ...cheat, isHidden: !cheat.isHidden }
+                    // Переключаем статус доступности
+                    let updatedCheat
+                    if (cheat.downloadUrl) {
+                      // Делаем недоступным - сохраняем ссылку
+                      updatedCheat = { 
+                        ...cheat, 
+                        _originalDownloadUrl: cheat.downloadUrl,
+                        downloadUrl: undefined
+                      }
+                    } else {
+                      // Делаем доступным - восстанавливаем ссылку
+                      updatedCheat = { 
+                        ...cheat, 
+                        downloadUrl: cheat._originalDownloadUrl || 'https://example.com/download'
+                      }
+                    }
                     updateCheat(updatedCheat)
                   }}
                   className={`px-3 py-2 rounded-md transition-colors ${
-                    cheat.isHidden 
-                      ? 'bg-green-600 hover:bg-green-700 text-white' 
-                      : 'bg-red-600 hover:bg-red-700 text-white'
+                    cheat.downloadUrl 
+                      ? 'bg-red-600 hover:bg-red-700 text-white' 
+                      : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
-                  title={cheat.isHidden ? 'Показать чит' : 'Скрыть чит'}
+                  title={cheat.downloadUrl ? 'Сделать недоступным' : 'Сделать доступным'}
                 >
-                  {cheat.isHidden ? '✓' : '👁️'}
+                  {cheat.downloadUrl ? '🔓' : '🔒'}
                 </button>
               </div>
             </div>

@@ -9,6 +9,7 @@ export interface Cheat {
   image: string
   downloadUrl?: string
   isHidden?: boolean
+  _originalDownloadUrl?: string // Для хранения исходной ссылки при временном отключении
 }
 
 interface CheatsContextType {
@@ -70,13 +71,31 @@ export function CheatsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Загружаем данные из localStorage при инициализации
-    const savedCheats = localStorage.getItem('cheats_data')
-    if (savedCheats) {
-      try {
-        setCheats(JSON.parse(savedCheats))
-      } catch (error) {
-        console.error('Error parsing saved cheats:', error)
+    const loadCheats = () => {
+      const savedCheats = localStorage.getItem('cheats_data')
+      if (savedCheats) {
+        try {
+          setCheats(JSON.parse(savedCheats))
+        } catch (error) {
+          console.error('Error parsing saved cheats:', error)
+        }
       }
+    }
+    
+    loadCheats()
+    
+    // Слушаем события обновления для синхронизации между админами
+    const handleCheatsUpdate = () => {
+      loadCheats()
+    }
+    
+    window.addEventListener('cheats-updated', handleCheatsUpdate)
+    // Также проверяем изменения каждую секунду
+    const interval = setInterval(loadCheats, 1000)
+    
+    return () => {
+      window.removeEventListener('cheats-updated', handleCheatsUpdate)
+      clearInterval(interval)
     }
   }, [])
 
