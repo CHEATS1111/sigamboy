@@ -66,11 +66,13 @@ export default function Features() {
                 className={`w-full font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 ${
                   cheat.downloadUrl && !cheat.isHidden
                     ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : cheat.isHidden && cheat.downloadUrl
+                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                     : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 }`}
                 disabled={!cheat.downloadUrl || cheat.isHidden}
               >
-                {cheat.isHidden ? 'НЕДОСТУПНО' : (cheat.downloadUrl ? 'СКАЧАТЬ' : 'СКОРО...')}
+                {cheat.isHidden && cheat.downloadUrl ? 'НЕДОСТУПНО' : (cheat.downloadUrl ? 'СКАЧАТЬ' : 'СКОРО...')}
               </button>
             </div>
           ))}
