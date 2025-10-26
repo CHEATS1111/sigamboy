@@ -17,18 +17,28 @@ interface SupportChatProps {
 
 export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
   const [username, setUsername] = useState('')
-  const [isUsernameSet, setIsUsernameSet] = useState(false)
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isLoginMode, setIsLoginMode] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [isAdminOnline, setIsAdminOnline] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Проверяем, есть ли сохраненное имя пользователя
-    const savedUsername = localStorage.getItem('support_username')
-    if (savedUsername) {
-      setUsername(savedUsername)
-      setIsUsernameSet(true)
+    // Проверяем, есть ли сохраненная авторизация
+    const savedAuth = localStorage.getItem('support_auth')
+    if (savedAuth) {
+      try {
+        const authData = JSON.parse(savedAuth)
+        if (authData.username && authData.password) {
+          setUsername(authData.username)
+          setIsAuthenticated(true)
+        }
+      } catch (error) {
+        console.error('Error parsing auth data:', error)
+      }
     }
 
     // Проверяем статус админа
@@ -69,17 +79,61 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const handleUsernameSubmit = (e: React.FormEvent) => {
+  const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (username.trim()) {
-      localStorage.setItem('support_username', username.trim())
-      setIsUsernameSet(true)
+    
+    if (isLoginMode) {
+      // Логин
+      const savedUsers = localStorage.getItem('support_users')
+      if (savedUsers) {
+        try {
+          const users = JSON.parse(savedUsers)
+          const user = users.find((u: any) => u.username === username && u.password === password)
+          if (user) {
+            localStorage.setItem('support_auth', JSON.stringify({ username, password }))
+            setIsAuthenticated(true)
+          } else {
+            alert('Неверный логин или пароль')
+          }
+        } catch (error) {
+          alert('Ошибка при авторизации')
+        }
+      } else {
+        alert('Пользователь не найден')
+      }
+    } else {
+      // Регистрация
+      if (password !== confirmPassword) {
+        alert('Пароли не совпадают')
+        return
+      }
+      
+      const savedUsers = localStorage.getItem('support_users')
+      let users = []
+      if (savedUsers) {
+        try {
+          users = JSON.parse(savedUsers)
+        } catch (error) {
+          users = []
+        }
+      }
+      
+      const existingUser = users.find((u: any) => u.username === username)
+      if (existingUser) {
+        alert('Пользователь с таким именем уже существует')
+        return
+      }
+      
+      users.push({ username, password })
+      localStorage.setItem('support_users', JSON.stringify(users))
+      localStorage.setItem('support_auth', JSON.stringify({ username, password }))
+      setIsAuthenticated(true)
     }
   }
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
-    if (message.trim() && isUsernameSet) {
+    if (message.trim() && isAuthenticated) {
       const newMessage: Message = {
         id: Date.now().toString(),
         text: message.trim(),
@@ -122,26 +176,58 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
 
       {/* Content */}
       <div className="flex flex-col h-80">
-        {!isUsernameSet ? (
-          /* Username Form */
+        {!isAuthenticated ? (
+          /* Auth Form */
           <div className="p-4">
-            <h4 className="text-white mb-2">Введите ваш никнейм</h4>
-            <form onSubmit={handleUsernameSubmit} className="space-y-2">
+            <h4 className="text-white mb-4 text-center">
+              {isLoginMode ? 'Вход в поддержку' : 'Регистрация'}
+            </h4>
+            <form onSubmit={handleAuthSubmit} className="space-y-3">
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Ваш никнейм"
+                placeholder="Имя пользователя"
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                 required
               />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Пароль"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              />
+              {!isLoginMode && (
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Повторите пароль"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                  required
+                />
+              )}
               <button
                 type="submit"
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
               >
-                Продолжить
+                {isLoginMode ? 'Войти' : 'Зарегистрироваться'}
               </button>
             </form>
+            <div className="mt-3 text-center">
+              <button
+                onClick={() => {
+                  setIsLoginMode(!isLoginMode)
+                  setPassword('')
+                  setConfirmPassword('')
+                }}
+                className="text-gray-400 hover:text-white text-sm transition-colors"
+              >
+                {isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Есть аккаунт? Войти'}
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -183,7 +269,7 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
                 <button
                   type="submit"
                   disabled={!message.trim()}
-                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors"
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-3 py-2 rounded-md transition-colors text-sm"
                 >
                   Отправить
                 </button>

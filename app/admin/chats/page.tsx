@@ -34,6 +34,10 @@ export default function AdminChatsPage() {
       setIsAuthenticated(true)
       loadChats()
     }
+    
+    // Обновляем чаты каждую секунду
+    const interval = setInterval(loadChats, 1000)
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -72,9 +76,18 @@ export default function AdminChatsPage() {
           }
         })
         
-        setChats(Array.from(chatMap.values()).sort((a, b) => 
+        const sortedChats = Array.from(chatMap.values()).sort((a, b) => 
           b.lastActivity.getTime() - a.lastActivity.getTime()
-        ))
+        )
+        setChats(sortedChats)
+        
+        // Обновляем выбранный чат если он есть
+        if (selectedChat) {
+          const updatedChat = sortedChats.find(chat => chat.id === selectedChat.id)
+          if (updatedChat) {
+            setSelectedChat(updatedChat)
+          }
+        }
       } catch (error) {
         console.error('Error loading chats:', error)
       }
