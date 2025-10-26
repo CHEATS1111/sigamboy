@@ -23,7 +23,7 @@ export default function Features() {
       downloadUrl: 'https://www.dropbox.com/scl/fi/2hste69i0pqefnwcsb9ty/Solara.zip?rlkey=uqlmzq2cig6j7ef2c2bu3r84t&st=94noe2v4&dl=1',
     },
     {
-      image: 'https://previews.dropbox.com/p/thumb/ACzm3twqjo-W3u0s-QwEVAFplTAYCLN690XVyrLCzFREIfRwJfPDcjlQNmr5g0UBf1SEzKp_nysMMwT2XYypkIJrdlm0vQw3jyXPMV4QR4P3rn3SFiPPoow200btoI6baej0wuLb43vMQNg-Np0ht_mDdvb0u44Ur8BPOHmImi2UZ9IfxcVL1tKAWo7OgsIAfZGRHMRfi8b0kyvIVZVjEIQUxOcysWScYjnQz14Z_mVK2Z3ZAjmPnNdsCAMA68AXiORcmU9inG8JphbhkyBZ0_8U0hhunuW_zm_oEewnJuDAoaYaooWsczH2ofsGVsPAUQNXeumIS4fCGDVuaiPBjBb1/p.png?is_prewarmed=true',
+      image: '/jjsploit.png',
       title: 'JJSploit',
       description: 'Чит для Roblox с мощными возможностями',
       downloadUrl: 'https://www.dropbox.com/scl/fi/d57rz3un7fc2v8bq3gxpi/JJSploit1.zip?rlkey=jgrdt3qh7cf2x0t311sa38diq&st=cl64tart&dl=1',
