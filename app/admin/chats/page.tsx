@@ -45,28 +45,34 @@ export default function AdminChatsPage() {
     // Инициализируем BroadcastChannel
     broadcasterRef.current = new MessageBroadcaster()
     
-    // Проверяем аутентификацию при загрузке (localStorage и cookies)
-    const auth = localStorage.getItem('admin_auth')
-    const cookieAuth = getCookie('admin_auth')
-    if (auth === 'true' || cookieAuth === 'true') {
-      setIsAuthenticated(true)
-      
-      // Запрашиваем разрешение на уведомления сразу при входе
-      if ('Notification' in window) {
-        if (Notification.permission === 'default') {
-          Notification.requestPermission().then(permission => {
-            console.log('Уведомления разрешены:', permission)
-          })
+    const checkAuth = () => {
+      // Проверяем аутентификацию (localStorage и cookies)
+      const auth = localStorage.getItem('admin_auth')
+      const cookieAuth = getCookie('admin_auth')
+      if (auth === 'true' || cookieAuth === 'true') {
+        setIsAuthenticated(true)
+        
+        // Запрашиваем разрешение на уведомления сразу при входе
+        if ('Notification' in window) {
+          if (Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+              console.log('Уведомления разрешены:', permission)
+            })
+          }
+        }
+        
+        loadChats()
+        
+        // Отправляем статус админа что мы онлайн
+        if (broadcasterRef.current) {
+          broadcasterRef.current.updateAdminStatus(true)
         }
       }
-      
-      loadChats()
-      
-      // Отправляем статус админа что мы онлайн
-      if (broadcasterRef.current) {
-        broadcasterRef.current.updateAdminStatus(true)
-      }
     }
+    
+    checkAuth()
+    // Проверяем каждые 500ms на случай если авторизация произошла в другой вкладке
+    const authInterval = setInterval(checkAuth, 500)
     
     // Слушаем новые сообщения через BroadcastChannel
     if (broadcasterRef.current) {
@@ -78,9 +84,11 @@ export default function AdminChatsPage() {
     }
     
     // Обновляем чаты каждую секунду
-    const interval = setInterval(loadChats, 1000)
+    const chatInterval = setInterval(loadChats, 1000)
+    
     return () => {
-      clearInterval(interval)
+      clearInterval(authInterval)
+      clearInterval(chatInterval)
       broadcasterRef.current?.close()
     }
   }, [])

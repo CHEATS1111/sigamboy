@@ -13,12 +13,19 @@ export default function AdminPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Проверяем аутентификацию при загрузке (localStorage и cookies)
-    const auth = localStorage.getItem('admin_auth')
-    const cookieAuth = getCookie('admin_auth')
-    if (auth === 'true' || cookieAuth === 'true') {
-      setIsAuthenticated(true)
+    // Проверяем аутентификацию при загрузке
+    const checkAuth = () => {
+      const auth = localStorage.getItem('admin_auth')
+      const cookieAuth = getCookie('admin_auth')
+      if (auth === 'true' || cookieAuth === 'true') {
+        setIsAuthenticated(true)
+      }
     }
+    
+    checkAuth()
+    // Проверяем каждые 500ms на случай если авторизация произошла в другой вкладке
+    const interval = setInterval(checkAuth, 500)
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
