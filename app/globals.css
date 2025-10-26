@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-gray-900 text-white;
+  }
+  
+  /* Prevent text selection background on clickable elements */
+  h1, h2, h3, h4, h5, h6 {
+    user-select: none;
+  }
+  
+  /* Remove default selection background */
+  ::selection {
+    background-color: rgba(239, 68, 68, 0.3);
+  }
+  
+  ::-moz-selection {
+    background-color: rgba(239, 68, 68, 0.3);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
