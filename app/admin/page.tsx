@@ -140,12 +140,12 @@ export default function AdminPage() {
                     }}
                     className={`px-3 py-2 rounded-md transition-colors ${
                       cheat.isHidden 
-                        ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'bg-green-600 hover:bg-green-700 text-white'
+                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                        : 'bg-red-600 hover:bg-red-700 text-white'
                     }`}
                     title={cheat.isHidden ? 'Показать чит' : 'Скрыть чит'}
                   >
-                    {cheat.isHidden ? '👁️' : '✓'}
+                    {cheat.isHidden ? '✓' : '👁️'}
                   </button>
                 )}
               </div>
