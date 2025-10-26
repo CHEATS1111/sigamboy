@@ -41,10 +41,23 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
       }
     }
 
-    // Проверяем статус админа
+    // Функция для получения cookie
+    const getCookie = (name: string) => {
+      const nameEQ = name + '='
+      const ca = document.cookie.split(';')
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i]
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length)
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
+      }
+      return null
+    }
+
+    // Проверяем статус админа (localStorage и cookies)
     const checkAdminStatus = () => {
       const adminAuth = localStorage.getItem('admin_auth')
-      setIsAdminOnline(adminAuth === 'true')
+      const cookieAuth = getCookie('admin_auth')
+      setIsAdminOnline(adminAuth === 'true' || cookieAuth === 'true')
     }
     
     checkAdminStatus()
