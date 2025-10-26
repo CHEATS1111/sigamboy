@@ -6,9 +6,11 @@ import Features from '@/components/Features'
 import About from '@/components/About'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import SupportChat from '@/components/SupportChat'
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isSupportOpen, setIsSupportOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,11 +28,17 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      <Navbar isScrolled={isScrolled} />
+      <Navbar isScrolled={isScrolled} onSupportClick={() => setIsSupportOpen(true)} />
       <Hero />
       <Features />
       <About />
       <Footer />
+      
+      {/* Support Chat - вне fixed контекста Navbar */}
+      <SupportChat 
+        isOpen={isSupportOpen} 
+        onClose={() => setIsSupportOpen(false)} 
+      />
     </main>
   )
 }
