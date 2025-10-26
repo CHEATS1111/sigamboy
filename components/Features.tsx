@@ -58,19 +58,19 @@ export default function Features() {
               {/* Красная кнопка скачать */}
               <button 
                 onClick={() => {
-                  if (cheat.downloadUrl) {
+                  if (cheat.downloadUrl && !cheat.isHidden) {
                     setSelectedCheat(cheat)
                     setIsModalOpen(true)
                   }
                 }}
                 className={`w-full font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 ${
-                  cheat.downloadUrl 
+                  cheat.downloadUrl && !cheat.isHidden
                     ? 'bg-red-600 hover:bg-red-700 text-white' 
                     : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 }`}
-                disabled={!cheat.downloadUrl}
+                disabled={!cheat.downloadUrl || cheat.isHidden}
               >
-                {cheat.downloadUrl ? 'СКАЧАТЬ' : 'СКОРО...'}
+                {cheat.isHidden ? 'НЕДОСТУПНО' : (cheat.downloadUrl ? 'СКАЧАТЬ' : 'СКОРО...')}
               </button>
             </div>
           ))}

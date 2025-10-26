@@ -125,12 +125,28 @@ export default function AdminPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">{cheat.title}</h3>
               <p className="text-gray-400 text-sm mb-4">{cheat.description}</p>
-              <button
-                onClick={() => handleEditCheat(cheat)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
-              >
-                Редактировать
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEditCheat(cheat)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
+                >
+                  Редактировать
+                </button>
+                <button
+                  onClick={() => {
+                    const updatedCheat = { ...cheat, isHidden: !cheat.isHidden }
+                    updateCheat(updatedCheat)
+                  }}
+                  className={`px-3 py-2 rounded-md transition-colors ${
+                    cheat.isHidden 
+                      ? 'bg-red-600 hover:bg-red-700 text-white' 
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                  title={cheat.isHidden ? 'Показать чит' : 'Скрыть чит'}
+                >
+                  {cheat.isHidden ? '👁️' : '✓'}
+                </button>
+              </div>
             </div>
           ))}
         </div>
