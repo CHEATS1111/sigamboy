@@ -11,13 +11,13 @@ export default function Features() {
 
   const cheats = [
     {
-      image: 'https://previews.dropbox.com/p/thumb/ACyptzdV4B9Suu0k4zVofovOJ20-XH6wO8Q_afeSlWY1HQvJmWcXLQGv9eJbnUE_L42ny-tt4MkWtu-nbEkP0fNPGXrYAdxmKxaYxAXpjo-EiDUjtflt5thoKzcerenAhzDsG69tEjvO45_GnNiNWss0cPvYzXjfq4qnUwippG5PAQNGBsvC8OyY53m7f8Wjk-vLVAGdoM4y9ELU7x_OC7tNCe2xYMI-OKPgVqRa8upnJyc9HJ5WNXJg8q2JlwR0hczBmqQ-UpvF7XvCqL1VfPU5tHUpv5MDAATLpaEPXg6LHr-mpSCUZ0aOfDo6A4OZe9vXw4Dbkn-h0W5fHUtsnuRV/p.png?is_prewarmed=true',
+      image: '/xeno.png',
       title: 'Xeno',
       description: 'Чит для Roblox с множеством функций',
       downloadUrl: 'https://www.dropbox.com/scl/fi/hzkcctzb48ukic3jip0tk/Xeno.zip?rlkey=9wj8i9tam2d9fza414ta6zlyc&st=5lvohy36&dl=1',
     },
     {
-      image: 'https://previews.dropbox.com/p/thumb/ACyqUusjmhEg7sPhI6fWsLuDfhoG8I8_gLa8LOCqr4saSItDu2FQsQSC5Q66mRAM82ulTHuytAwUzKWMCSrUwqiwOu6jQ_a1jrUEW1IKM3JkgipMF-oKgT6I0UaTBjue2jXDmkkE-pOtrS8Zz5N_xDq4NCpvy-u0vL1ZCVZkV-Mx99AljLmNQYwheSDxdHtclql1skP3aFnAgc8ovQOKn5BpfXACBq_ngb29b2qUdfLPs2c1OLmpL8OZeKQUfa99ciUO92dWn_9u_VqIl6duaMNALOlyF9OUTIpNJDtEGEfBUwVItsBoLSLa6fce3PLJwpUofzLXW3GryQFLwRBG_ZzK/p.png?is_prewarmed=true',
+      image: '/solara.png',
       title: 'Solara',
       description: 'Чит для Roblox с продвинутыми функциями',
       downloadUrl: 'https://www.dropbox.com/scl/fi/2hste69i0pqefnwcsb9ty/Solara.zip?rlkey=uqlmzq2cig6j7ef2c2bu3r84t&st=94noe2v4&dl=1',
