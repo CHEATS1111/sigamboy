@@ -72,7 +72,7 @@ export default function Features() {
                 }`}
                 disabled={!cheat.downloadUrl || cheat.isHidden}
               >
-                {cheat.isHidden && cheat.downloadUrl ? 'НЕДОСТУПНО' : (cheat.downloadUrl ? 'СКАЧАТЬ' : 'СКОРО...')}
+                {cheat.isHidden ? 'НЕДОСТУПНО' : (cheat.downloadUrl ? 'СКАЧАТЬ' : 'НЕДОСТУПНО')}
               </button>
             </div>
           ))}

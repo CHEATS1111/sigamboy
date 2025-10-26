@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import SupportChat from '@/components/SupportChat'
 
 interface NavbarProps {
   isScrolled: boolean
@@ -9,6 +10,7 @@ interface NavbarProps {
 
 export default function Navbar({ isScrolled }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSupportOpen, setIsSupportOpen] = useState(false)
   const { t } = useLanguage()
 
   return (
@@ -49,6 +51,12 @@ export default function Navbar({ isScrolled }: NavbarProps) {
               >
                 {t.nav.about}
               </a>
+              <button
+                onClick={() => setIsSupportOpen(true)}
+                className="text-white hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Поддержка
+              </button>
             </div>
           </div>
 
@@ -110,9 +118,24 @@ export default function Navbar({ isScrolled }: NavbarProps) {
             >
               {t.nav.about}
             </a>
+            <button
+              onClick={() => {
+                setIsSupportOpen(true)
+                setIsMenuOpen(false)
+              }}
+              className="text-white hover:text-red-400 block px-3 py-2 rounded-md text-base font-medium transition-colors w-full text-left"
+            >
+              Поддержка
+            </button>
           </div>
         </div>
       )}
+      
+      {/* Support Chat */}
+      <SupportChat 
+        isOpen={isSupportOpen} 
+        onClose={() => setIsSupportOpen(false)} 
+      />
     </nav>
   )
 }
