@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { MessageBroadcaster } from '@/lib/broadcast'
 
 interface Message {
   id: string
@@ -25,8 +26,12 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isAdminOnline, setIsAdminOnline] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const broadcasterRef = useRef<MessageBroadcaster | null>(null)
 
   useEffect(() => {
+    // Инициализируем BroadcastChannel
+    broadcasterRef.current = new MessageBroadcaster()
+    
     // Проверяем, есть ли сохраненная авторизация
     const savedAuth = localStorage.getItem('support_auth')
     if (savedAuth) {
@@ -60,10 +65,22 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
       setIsAdminOnline(adminAuth === 'true' || cookieAuth === 'true')
     }
     
+    // Слушаем изменения через BroadcastChannel
+    if (broadcasterRef.current) {
+      broadcasterRef.current.onMessage((data: any) => {
+        if (data.type === 'admin_status') {
+          setIsAdminOnline(data.data.isOnline)
+        }
+      })
+    }
+    
     checkAdminStatus()
     const interval = setInterval(checkAdminStatus, 1000)
     
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      broadcasterRef.current?.close()
+    }
   }, [])
 
   useEffect(() => {
@@ -90,6 +107,23 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
     }
     
     loadMessages()
+    
+    // Слушаем новые сообщения через BroadcastChannel
+    if (broadcasterRef.current) {
+      broadcasterRef.current.onMessage((data: any) => {
+        if (data.type === 'new_message') {
+          // Проверяем, относится ли сообщение к текущему пользователю
+          const msg = data.data
+          if (msg.username === username || (msg.sender === 'admin' && msg.username === username)) {
+            setMessages(prev => [...prev, {
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            }])
+          }
+        }
+      })
+    }
+    
     // Обновляем сообщения каждую секунду
     const interval = setInterval(loadMessages, 1000)
     return () => clearInterval(interval)
@@ -167,6 +201,25 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
         timestamp: new Date(),
         username: username
       }
+      
+      // Сохраняем в localStorage
+      const savedMessages = localStorage.getItem('support_messages')
+      let messages = []
+      if (savedMessages) {
+        try {
+          messages = JSON.parse(savedMessages)
+        } catch (error) {
+          console.error('Error parsing messages:', error)
+        }
+      }
+      messages.push(newMessage)
+      localStorage.setItem('support_messages', JSON.stringify(messages))
+      
+      // Отправляем через BroadcastChannel для мгновенной синхронизации
+      if (broadcasterRef.current) {
+        broadcasterRef.current.sendMessage(newMessage)
+      }
+      
       setMessages(prev => [...prev, newMessage])
       setMessage('')
     }

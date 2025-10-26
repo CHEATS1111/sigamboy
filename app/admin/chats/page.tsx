@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { MessageBroadcaster } from '@/lib/broadcast'
 
 interface Message {
   id: string
@@ -26,6 +27,7 @@ export default function AdminChatsPage() {
   const [message, setMessage] = useState('')
   const [previousMessageCount, setPreviousMessageCount] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const broadcasterRef = useRef<MessageBroadcaster | null>(null)
   const router = useRouter()
 
   const getCookie = (name: string) => {
@@ -40,6 +42,9 @@ export default function AdminChatsPage() {
   }
 
   useEffect(() => {
+    // Инициализируем BroadcastChannel
+    broadcasterRef.current = new MessageBroadcaster()
+    
     // Проверяем аутентификацию при загрузке (localStorage и cookies)
     const auth = localStorage.getItem('admin_auth')
     const cookieAuth = getCookie('admin_auth')
@@ -56,11 +61,28 @@ export default function AdminChatsPage() {
       }
       
       loadChats()
+      
+      // Отправляем статус админа что мы онлайн
+      if (broadcasterRef.current) {
+        broadcasterRef.current.updateAdminStatus(true)
+      }
+    }
+    
+    // Слушаем новые сообщения через BroadcastChannel
+    if (broadcasterRef.current) {
+      broadcasterRef.current.onMessage((data: any) => {
+        if (data.type === 'new_message') {
+          loadChats()
+        }
+      })
     }
     
     // Обновляем чаты каждую секунду
     const interval = setInterval(loadChats, 1000)
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      broadcasterRef.current?.close()
+    }
   }, [])
 
   useEffect(() => {
@@ -191,6 +213,11 @@ export default function AdminChatsPage() {
       
       messages.push(newMessage)
       localStorage.setItem('support_messages', JSON.stringify(messages))
+      
+      // Отправляем через BroadcastChannel для мгновенной синхронизации
+      if (broadcasterRef.current) {
+        broadcasterRef.current.sendMessage(newMessage)
+      }
       
       // Обновляем локальное состояние
       setSelectedChat(prev => {
