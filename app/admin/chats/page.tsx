@@ -40,16 +40,21 @@ export default function AdminChatsPage() {
   }
 
   useEffect(() => {
-    // Запрашиваем разрешение на уведомления
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
-
     // Проверяем аутентификацию при загрузке (localStorage и cookies)
     const auth = localStorage.getItem('admin_auth')
     const cookieAuth = getCookie('admin_auth')
     if (auth === 'true' || cookieAuth === 'true') {
       setIsAuthenticated(true)
+      
+      // Запрашиваем разрешение на уведомления сразу при входе
+      if ('Notification' in window) {
+        if (Notification.permission === 'default') {
+          Notification.requestPermission().then(permission => {
+            console.log('Уведомления разрешены:', permission)
+          })
+        }
+      }
+      
       loadChats()
     }
     
