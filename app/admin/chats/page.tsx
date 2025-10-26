@@ -24,13 +24,31 @@ export default function AdminChatsPage() {
   const [chats, setChats] = useState<ChatSession[]>([])
   const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null)
   const [message, setMessage] = useState('')
+  const [previousMessageCount, setPreviousMessageCount] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
+  const getCookie = (name: string) => {
+    const nameEQ = name + '='
+    const ca = document.cookie.split(';')
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i]
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length)
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
+    }
+    return null
+  }
+
   useEffect(() => {
-    // Проверяем аутентификацию при загрузке
+    // Запрашиваем разрешение на уведомления
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+
+    // Проверяем аутентификацию при загрузке (localStorage и cookies)
     const auth = localStorage.getItem('admin_auth')
-    if (auth === 'true') {
+    const cookieAuth = getCookie('admin_auth')
+    if (auth === 'true' || cookieAuth === 'true') {
       setIsAuthenticated(true)
       loadChats()
     }
@@ -44,6 +62,26 @@ export default function AdminChatsPage() {
     // Прокручиваем к последнему сообщению
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [selectedChat?.messages])
+
+  useEffect(() => {
+    // Проверяем новые сообщения и показываем уведомление
+    if (chats.length > 0) {
+      const totalMessages = chats.reduce((sum, chat) => sum + chat.messages.length, 0)
+      
+      if (previousMessageCount > 0 && totalMessages > previousMessageCount) {
+        // Есть новые сообщения - показываем уведомление
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const newMessagesCount = totalMessages - previousMessageCount
+          new Notification(`Новое сообщение в поддержке!`, {
+            body: `У вас ${newMessagesCount} нов${newMessagesCount === 1 ? 'ое' : 'ых'} сообщени${newMessagesCount === 1 ? 'е' : 'й'}`,
+            icon: '/favicon.ico'
+          })
+        }
+      }
+      
+      setPreviousMessageCount(totalMessages)
+    }
+  }, [chats])
 
   const loadChats = () => {
     // Загружаем чаты из localStorage
@@ -94,11 +132,30 @@ export default function AdminChatsPage() {
     }
   }
 
+  const setCookie = (name: string, value: string, days: number = 7) => {
+    const date = new Date()
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
+    const expires = 'expires=' + date.toUTCString()
+    document.cookie = name + '=' + value + ';' + expires + ';path=/'
+  }
+
+  const getCookie = (name: string) => {
+    const nameEQ = name + '='
+    const ca = document.cookie.split(';')
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i]
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length)
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
+    }
+    return null
+  }
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (password === '33336020') {
       setIsAuthenticated(true)
       localStorage.setItem('admin_auth', 'true')
+      setCookie('admin_auth', 'true', 7)
       loadChats()
     } else {
       alert('Неверный пароль')
@@ -108,6 +165,7 @@ export default function AdminChatsPage() {
   const handleLogout = () => {
     setIsAuthenticated(false)
     localStorage.removeItem('admin_auth')
+    document.cookie = 'admin_auth=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;'
     setPassword('')
     setSelectedChat(null)
   }
@@ -271,9 +329,34 @@ export default function AdminChatsPage() {
             <>
               {/* Chat Header */}
               <div className="bg-gray-800 border-b border-gray-700 p-4">
-                <h3 className="text-white font-semibold">
-                  Чат с {selectedChat.username}
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-white font-semibold">
+                    Чат с {selectedChat.username}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      if (confirm('Вы уверены, что хотите удалить всю переписку с этим пользователем?')) {
+                        const savedMessages = localStorage.getItem('support_messages')
+                        if (savedMessages) {
+                          try {
+                            let messages = JSON.parse(savedMessages)
+                            // Удаляем все сообщения этого пользователя
+                            messages = messages.filter((msg: any) => msg.username !== selectedChat.username)
+                            localStorage.setItem('support_messages', JSON.stringify(messages))
+                            loadChats()
+                            setSelectedChat(null)
+                          } catch (error) {
+                            console.error('Error deleting chat:', error)
+                          }
+                        }
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                    title="Удалить переписку"
+                  >
+                    🗑️ Удалить
+                  </button>
+                </div>
               </div>
 
               {/* Messages */}

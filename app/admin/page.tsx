@@ -13,9 +13,10 @@ export default function AdminPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Проверяем аутентификацию при загрузке
+    // Проверяем аутентификацию при загрузке (localStorage и cookies)
     const auth = localStorage.getItem('admin_auth')
-    if (auth === 'true') {
+    const cookieAuth = getCookie('admin_auth')
+    if (auth === 'true' || cookieAuth === 'true') {
       setIsAuthenticated(true)
     }
   }, [])
@@ -41,11 +42,30 @@ export default function AdminPage() {
     }
   }, [isAuthenticated])
 
+  const setCookie = (name: string, value: string, days: number = 7) => {
+    const date = new Date()
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000)
+    const expires = 'expires=' + date.toUTCString()
+    document.cookie = name + '=' + value + ';' + expires + ';path=/'
+  }
+
+  const getCookie = (name: string) => {
+    const nameEQ = name + '='
+    const ca = document.cookie.split(';')
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i]
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length)
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
+    }
+    return null
+  }
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (password === '33336020') {
       setIsAuthenticated(true)
       localStorage.setItem('admin_auth', 'true')
+      setCookie('admin_auth', 'true', 7)
     } else {
       alert('Неверный пароль')
     }
@@ -54,6 +74,7 @@ export default function AdminPage() {
   const handleLogout = () => {
     setIsAuthenticated(false)
     localStorage.removeItem('admin_auth')
+    document.cookie = 'admin_auth=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;'
     setPassword('')
   }
 
