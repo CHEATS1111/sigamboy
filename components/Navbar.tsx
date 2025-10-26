@@ -23,6 +23,7 @@ export default function Navbar({ isScrolled }: NavbarProps) {
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">
             <h1 className="text-2xl font-bold text-red-500 hover:text-red-400 transition-colors cursor-pointer select-none">
+              <a href="/admin" className="hidden">admin</a>
               IDIRENT-CHEATS
             </h1>
           </div>

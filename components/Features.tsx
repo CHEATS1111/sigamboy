@@ -2,48 +2,14 @@
 
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useCheats } from '@/contexts/CheatsContext'
 import DownloadModal from '@/components/DownloadModal'
 
 export default function Features() {
   const { t } = useLanguage()
+  const { cheats } = useCheats()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedCheat, setSelectedCheat] = useState<any>(null)
-
-  const cheats = [
-    {
-      image: '/xeno.png',
-      title: 'Xeno',
-      description: 'Чит для Roblox с множеством функций',
-      downloadUrl: 'https://www.dropbox.com/scl/fi/hzkcctzb48ukic3jip0tk/Xeno.zip?rlkey=9wj8i9tam2d9fza414ta6zlyc&st=5lvohy36&dl=1',
-    },
-    {
-      image: '/solara.png',
-      title: 'Solara',
-      description: 'Чит для Roblox с продвинутыми функциями',
-      downloadUrl: 'https://www.dropbox.com/scl/fi/2hste69i0pqefnwcsb9ty/Solara.zip?rlkey=uqlmzq2cig6j7ef2c2bu3r84t&st=94noe2v4&dl=1',
-    },
-    {
-      image: '/jjsploit.png',
-      title: 'JJSploit',
-      description: 'Чит для Roblox с мощными возможностями',
-      downloadUrl: 'https://www.dropbox.com/scl/fi/d57rz3un7fc2v8bq3gxpi/JJSploit1.zip?rlkey=jgrdt3qh7cf2x0t311sa38diq&st=cl64tart&dl=1',
-    },
-    {
-      image: 'https://via.placeholder.com/300x200/374151/ffffff?text=Скоро...',
-      title: 'Скоро...',
-      description: 'Новый чит в разработке',
-    },
-    {
-      image: 'https://via.placeholder.com/300x200/374151/ffffff?text=Скоро...',
-      title: 'Скоро...',
-      description: 'Новый чит в разработке',
-    },
-    {
-      image: 'https://via.placeholder.com/300x200/374151/ffffff?text=Скоро...',
-      title: 'Скоро...',
-      description: 'Новый чит в разработке',
-    },
-  ]
 
   return (
     <section
