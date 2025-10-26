@@ -55,19 +55,32 @@ export default function SupportChat({ isOpen, onClose }: SupportChatProps) {
 
   useEffect(() => {
     // Загружаем сообщения из localStorage
-    const savedMessages = localStorage.getItem('support_messages')
-    if (savedMessages) {
-      try {
-        const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-        setMessages(parsedMessages)
-      } catch (error) {
-        console.error('Error loading messages:', error)
+    const loadMessages = () => {
+      const savedMessages = localStorage.getItem('support_messages')
+      if (savedMessages) {
+        try {
+          const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }))
+          // Фильтруем только сообщения от текущего пользователя и адресуемые ему
+          const userMessages = parsedMessages.filter((msg: any) => 
+            msg.username === username || 
+            (msg.sender === 'admin' && msg.username === username) ||
+            msg.sender === 'user'
+          )
+          setMessages(userMessages)
+        } catch (error) {
+          console.error('Error loading messages:', error)
+        }
       }
     }
-  }, [])
+    
+    loadMessages()
+    // Обновляем сообщения каждую секунду
+    const interval = setInterval(loadMessages, 1000)
+    return () => clearInterval(interval)
+  }, [username])
 
   useEffect(() => {
     // Сохраняем сообщения в localStorage
